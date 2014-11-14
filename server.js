@@ -1,6 +1,10 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
+var user = require('./user/user.js');
+var receivers = require('./receivers/receivers.js');
+var pending = require('./pending/pending.js');
+var results = require('./results/results.js');
 
 var app = express();
 
