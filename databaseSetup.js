@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'production') {
   dbConnection = mysql.createConnection({
     host: "us-cdbr-azure-west-a.cloudapp.net",
     user: "bffa2351040f6c",
-    password: "8d1c5b26a",
+    password: "81c5b268",
     database: "thesisdb"
   });
 } else {
