@@ -26,15 +26,50 @@ module.exports.declineFriend = function(req, res){
 
 // ===================HELPER FUNCTIONS=======================
 var makeFriendRequest = function(requestInfo, res){
-  var query = 'INSERT INTO friendrequests (requesterId, confirmerId) SELECT ?, userId FROM users WHERE username = ?';
-  dbConnection.query(query, [requestInfo.requesterId, requestInfo.confirmerName], function(error, data){
-    if (error){
-      console.log(error);
-      res.send(error);
-    } else {
-      res.send('Your friend request was successful');
+  var addFriendRequestQuery = 'INSERT INTO friendrequests (requesterId, confirmerId) SELECT ?, userId FROM users WHERE username = ?';
+  var existingFriendQuery = 'SELECT COUNT(*) AS count FROM contacts WHERE userId = ? AND friendId = (SELECT userId FROM users WHERE username = ?)';
+
+  var response = 'Your friend request was successful';
+
+  dbConnection.beginTransaction(function(err) {
+    if (err) { 
+      console.log(err, 'begin transaction error');
     }
-  })
+    dbConnection.query(existingFriendQuery, [requestInfo.requesterId, requestInfo.confirmerName], function(err, data){
+      if (err) { 
+        dbConnection.rollback(function() {
+          console.log(err, 'error when checking if friend already exists');
+          res.send('there was an error with your friend request - existing friend query');
+        });
+      } else if (data[0].count > 0){
+        dbConnection.rollback(function() {
+          console.log('friend already exists');
+          response = requestInfo.confirmerName + ' is already your friend';
+        })
+      }
+      if (data[0].count === 0){
+        dbConnection.query(addFriendRequestQuery, [requestInfo.requesterId, requestInfo.confirmerName], function(err, data){
+          if (err) { 
+            dbConnection.rollback(function() {
+                console.log(err, 'error inserting new friend request')
+                response = '001-there was an error with your friend request';
+            });
+          } 
+        });
+      }
+      dbConnection.commit(function(err) {
+        if (err) { 
+          dbConnection.rollback(function() {
+            console.log(err, 'COMMIT');
+            res.send('002-there was an error with your friend request');
+          });
+        } else {
+          res.send(response);
+          response = false;
+        }
+      });
+    });
+  });
 }
 
 var checkFriendRequest = function(userId, res){
@@ -102,7 +137,6 @@ var declineFriendRequest = function(requestInfo, res){
     if(error){
       res.send(error);
     } else{
-      console.log(data, 'RESPONSE FROM MYSQL');
       res.send({text: 'decline friend confirmed'});
     }
   })

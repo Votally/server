@@ -15,7 +15,6 @@ module.exports = {
         console.log(error, "MYSQL ERROR")
       } else {
         data = {receivers: data}
-        console.log(data);
         res.send(data);
       }
     })
