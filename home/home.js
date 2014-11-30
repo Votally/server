@@ -1,6 +1,23 @@
 var dbConnection = require('../databaseSetup.js');
 
 //checks if the user has received any friend requests and any contents to vote.
+module.exports.getUsername = function(req, res){
+  var userId = req.body.userId;
+  var data = {};
+
+  var getUsernameQuery = 'SELECT username, email FROM users WHERE userId = ?';
+  dbConnection.query(getUsernameQuery, userId, function(error, rows){
+    if (error){
+      console.log(error);
+    } else {
+      data.username = rows[0].username;
+      data.email = rows[0].email;
+      res.send(data);
+    }
+  })
+}
+
+
 module.exports.checkUpdates = function(req, res){
 
   //take the userId information from the request.
