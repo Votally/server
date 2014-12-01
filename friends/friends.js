@@ -54,6 +54,10 @@ var makeFriendRequest = function(requestInfo, res){
                 console.log(err, 'error inserting new friend request')
                 response = '001-there was an error with your friend request';
             });
+          } else {
+            if(data.affectedRows === 0){
+              response = 'User does not exist';
+            }
           } 
         });
       }
