@@ -18,17 +18,6 @@ module.exports = {
         res.send(data);
       }
     })
-
-    //ATTEMPT AT PROMISES :(
-    // var contacts = Q.nfcall(mysql.query, mysql, getContactsQuery)
-    //   .then(function(data){
-    //     response.send(data)
-    //   })
-    //   .then(function(data){
-    //     console.log(data, 'THIS IS THE DATA THAT WAS SENT TO THE BROWSER')
-    //   })
-    //   .fail(console.log(err, 'THERE WAS AN ERROR WITH GET CONTACTS'))
-
   },
 
   sendContent: function(req, res, next){
@@ -110,20 +99,6 @@ module.exports = {
         });
       });
     });
-
-    //ATTEMPT AT PROMISES :(
-    // var simpleQuery = 'SELECT username FROM users';
-    // var saveContent = Q.nbind(mysql.query);
-    // saveContent(simpleQuery)
-    //   // .then(function(data){
-    //   //   response.send(data)
-    //   // })
-    //   .then(function(data){
-    //     console.log(data, 'THIS IS THE DATA THAT WAS SENT TO THE BROWSER')
-    //   })
-    //   .fail(function(err){
-    //     console.log(err, 'THERE WAS AN ERROR WITH GET CONTACTS')
-    //   })
   }
 
   };
