@@ -27,7 +27,7 @@ app.post('/user/logout', user.logout);
 
 //home route
 app.post('/home/checkUpdates', home.checkUpdates);
-app.post('/home/getUsername', home.getusername);
+app.post('/home/getUsername', home.getUsername);
 
 // //friends route
 app.post('/friends/checkRequest', friends.checkRequest);
