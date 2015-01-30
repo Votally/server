@@ -1,5 +1,6 @@
 //var Q = require('q');
-var mysql = require('../databaseSetup.js')
+var mysql = require('../databaseSetup.js');
+var saveImageOnS3 = require('../aws.js').saveImageOnS3;
 
 module.exports = {
   getContacts: function(req, res, next){
@@ -12,7 +13,7 @@ module.exports = {
     //perform mysql query, prep and send results to the client
     mysql.query(getContactsQuery, userId, function(error, data){
       if (error){
-        console.log(error, "MYSQL ERROR")
+        console.log(error, "MYSQL ERROR");
       } else {
         data = {receivers: data}
         res.send(data);
@@ -52,13 +53,15 @@ module.exports = {
       }
 
       //add a new picture to db as part of transaction
-      mysql.query(postPicDataQuery, picture, function(err, result) {
+      mysql.query(postPicDataQuery, 'picture', function(err, result) {
         if (err) { 
           mysql.rollback(function() {
             console.log(err, 'PICTURE');
           });
         } else {
           var pictureId = result.insertId;
+          //upload the image to AWS S3
+          saveImageOnS3(pictureId, picture);
         }
 
         //add the content information to db as part of transaction
