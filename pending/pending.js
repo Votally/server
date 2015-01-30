@@ -1,4 +1,5 @@
 var dbConnection = require('../databaseSetup.js');
+var addS3PictureDataToPending = require('../aws.js').addS3PictureDataToPending;
 
 module.exports.getPending = function(req, res){
   var userId = req.body.userId;
@@ -6,7 +7,7 @@ module.exports.getPending = function(req, res){
   //get contents data from contents table with contentId;
   //get pictureData from pictures table with pictureId;
   //get username from users table with userId;
-  getPendingContents(userId, res);
+  getPendingContents(userId, res, addS3PictureDataToPending);
 };
 
 module.exports.sendVote = function(req, res){
@@ -35,14 +36,12 @@ module.exports.sendVote = function(req, res){
 
 // ===================HELPER FUNCTIONS=======================
 
-var getPendingContents = function(userId, res){
-  dbConnection.query("SELECT p.data, c.topic, u.username, c.contentId FROM receivers r JOIN contents c on r.contentID = c. contentID join pictures p on c.pictureID = p.pictureID join users u on c.userId = u.userId WHERE receiversId = '" + userId + "';", function(error, rows) {
-  var data = { contents: [] };
+var getPendingContents = function(userId, res, callback){
+  dbConnection.query("SELECT p.data, c.topic, u.username, c.contentId, c.pictureId FROM receivers r JOIN contents c on r.contentID = c. contentID join pictures p on c.pictureID = p.pictureID join users u on c.userId = u.userId WHERE receiversId = '" + userId + "';", function(error, rows) {
     if(error){
       res.send(error);
     }else{
-      data.contents = rows;
-      res.send(data);
+      callback(rows, res);
     }
   });
 };
@@ -76,7 +75,7 @@ var saveStatus = function(contentId, callback){
     if(error){ console.error(error); }
     callback(contentId);
   });
-}
+};
 
 var checkStatus = function(contentId){
   var checkQuery = "SELECT receiver_count, vote_count FROM status WHERE contentId = ?";
@@ -92,5 +91,5 @@ var checkStatus = function(contentId){
       });
     }
   });
-}
+};
 
